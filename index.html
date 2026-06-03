@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#0d0f14"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Lotto"/>
+  <title>Lotto Tipp-Generator</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="icon" href="icons/icon-192.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0d0f14;
+      --surface: #161920;
+      --card:    #1e2230;
+      --border:  #2a2f42;
+      --gold:    #e8c96a;
+      --gold2:   #f0d98a;
+      --red:     #e05252;
+      --green:   #2ecc71;
+      --text:    #dde1f0;
+      --muted:   #6b7394;
+      --radius:  14px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
+    }
+
+    .app {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 16px 16px 60px;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      padding: 24px 0 20px;
+    }
+    .header-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 54px;
+      letter-spacing: 4px;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 60%, #fff8dc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-sub {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .header-divider {
+      width: 48px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 14px auto 0;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    /* ── Stepper ── */
+    .stepper {
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .stepper-btn {
+      width: 56px;
+      height: 56px;
+      background: none;
+      border: none;
+      color: var(--gold);
+      font-size: 24px;
+      cursor: pointer;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.12s;
+    }
+    .stepper-btn:active { background: rgba(232,201,106,0.14); }
+    .stepper-val {
+      flex: 1;
+      text-align: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      color: var(--text);
+      letter-spacing: 1px;
+      user-select: none;
+    }
+
+    /* ── Zahlen-Gitter ── */
+    .num-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 5px;
+    }
+    .num-btn {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'DM Sans', sans-serif;
+      padding: 0;
+    }
+    .num-btn:active { transform: scale(0.88); }
+    .num-btn.selected {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #0d0f14;
+      font-weight: 700;
+    }
+
+    /* ── Pflicht-Liste ── */
+    .pflicht-list { display: flex; flex-direction: column; gap: 9px; }
+    .pflicht-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .pflicht-badge {
+      background: var(--gold);
+      color: #0d0f14;
+      font-weight: 700;
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 0.5px;
+    }
+    .pflicht-label {
+      flex: 1;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .pflicht-label span { color: var(--text); font-weight: 600; font-size: 14px; }
+    .pflicht-stepper {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .pflicht-stepper button {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--gold);
+      font-size: 18px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .pflicht-stepper button:active { background: rgba(232,201,106,0.15); }
+    .pflicht-stepper .count {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      min-width: 22px;
+      text-align: center;
+      color: var(--text);
+    }
+    .pflicht-del {
+      background: none;
+      border: none;
+      color: var(--red);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 6px;
+      -webkit-tap-highlight-color: transparent;
+      line-height: 1;
+    }
+
+    /* ── Buttons ── */
+    .gen-btn {
+      width: 100%;
+      padding: 18px;
+      border-radius: var(--radius);
+      border: none;
+      background: linear-gradient(135deg, var(--gold) 0%, #c9a93a 100%);
+      color: #0d0f14;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 3px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: transform 0.1s, opacity 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 4px 20px rgba(232,201,106,0.22);
+    }
+    .gen-btn:active { transform: scale(0.97); opacity: 0.9; }
+
+    .sec-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .sec-btn:active { color: var(--text); border-color: var(--muted); }
+
+    /* ── Error ── */
+    .error {
+      background: rgba(224,82,82,0.12);
+      border: 1px solid rgba(224,82,82,0.4);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--red);
+      font-size: 13px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    /* ── Ergebnisse ── */
+    .results-header {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .results-count {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 14px;
+      letter-spacing: 3px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .tipp-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 10px;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: slideUp 0.28s ease forwards;
+    }
+    @keyframes slideUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tipp-nr {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .tipp-zahlen {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .zahl-bubble {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 19px;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .zahl-bubble.normal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .zahl-bubble.pflicht {
+      background: linear-gradient(135deg, var(--gold), #c9a93a);
+      color: #0d0f14;
+      box-shadow: 0 2px 10px rgba(232,201,106,0.35);
+    }
+
+    .pflicht-tags {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .pflicht-tag {
+      background: rgba(232,201,106,0.1);
+      border: 1px solid rgba(232,201,106,0.3);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 13px;
+      color: var(--gold);
+    }
+  </style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+// ── Lotto-Logik ──────────────────────────────────────────────────────────────
+function sampleN(arr, n) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a.slice(0, n);
+}
+
+function generiereTipps(anzahl, pflichtzahlen) {
+  const tipps = Array.from({length: anzahl}, () => new Set());
+  const alle = Array.from({length: 45}, (_, i) => i + 1);
+
+  for (const [z, h] of Object.entries(pflichtzahlen)) {
+    const zahl = parseInt(z);
+    const idxs = sampleN(Array.from({length: anzahl}, (_, i) => i), parseInt(h));
+    idxs.forEach(i => tipps[i].add(zahl));
+  }
+
+  for (const tipp of tipps) {
+    const verfuegbar = alle.filter(z => !tipp.has(z));
+    sampleN(verfuegbar, 6 - tipp.size).forEach(z => tipp.add(z));
+  }
+
+  return tipps.map(t => [...t].sort((a, b) => a - b));
+}
+
+// ── State ────────────────────────────────────────────────────────────────────
+let state = {
+  phase: 'setup',       // 'setup' | 'results'
+  anzahl: 6,
+  selected: new Set(),  // gewählte Pflichtzahlen
+  haeufig: {},          // {zahl: anzahl}
+  tipps: [],
+  error: ''
+};
+
+function setState(patch) {
+  Object.assign(state, patch);
+  render();
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+
+  const header = el('div', {className: 'header'}, [
+    el('div', {className: 'header-title'}, ['🍀 LOTTO']),
+    el('div', {className: 'header-sub'}, ['6 aus 45 · Tipp-Generator']),
+    el('div', {className: 'header-divider'})
+  ]);
+  app.appendChild(header);
+
+  if (state.phase === 'setup') renderSetup(app);
+  else renderResults(app);
+}
+
+function renderSetup(app) {
+  // Anzahl Tipps
+  app.appendChild(el('div', {className: 'card'}, [
+    el('div', {className: 'card-title'}, ['Anzahl Tipps']),
+    el('div', {className: 'stepper'}, [
+      btn('−', 'stepper-btn', () => setState({anzahl: Math.max(1, state.anzahl - 1)})),
+      el('div', {className: 'stepper-val'}, [String(state.anzahl)]),
+      btn('+', 'stepper-btn', () => setState({anzahl: Math.min(20, state.anzahl + 1)}))
+    ])
+  ]));
+
+  // Zahlen-Gitter
+  const numBtns = Array.from({length: 45}, (_, i) => {
+    const n = i + 1;
+    const sel = state.selected.has(n);
+    const b = el('button', {
+      className: 'num-btn' + (sel ? ' selected' : '')
+    }, [String(n)]);
+    b.addEventListener('click', () => toggleNum(n));
+    return b;
+  });
+  app.appendChild(el('div', {className: 'card'}, [
+    el('div', {className: 'card-title'}, ['Pflichtzahlen (optional)']),
+    el('p', {className: 'hint'}, ['Tippe auf eine Zahl → wird zur Pflichtzahl. Max. 10.']),
+    el('div', {className: 'num-grid'}, numBtns)
+  ]));
+
+  // Häufigkeiten
+  if (state.selected.size > 0) {
+    const items = [...state.selected].sort((a,b) => a-b).map(zahl => {
+      const h = state.haeufig[zahl] ?? 1;
+      return el('div', {className: 'pflicht-item'}, [
+        el('div', {className: 'pflicht-badge'}, [String(zahl)]),
+        el('div', {className: 'pflicht-label'}, [
+          'In ', el('span', {}, [String(h)]), ` von ${state.anzahl} Tipps`
+        ]),
+        el('div', {className: 'pflicht-stepper'}, [
+          btn('−', null, () => setHaeuf(zahl, -1)),
+          el('span', {className: 'count'}, [String(h)]),
+          btn('+', null, () => setHaeuf(zahl, +1))
+        ]),
+        btn('✕', 'pflicht-del', () => toggleNum(zahl))
+      ]);
+    });
+    app.appendChild(el('div', {className: 'card'}, [
+      el('div', {className: 'card-title'}, ['In wie vielen Tipps?']),
+      el('div', {className: 'pflicht-list'}, items)
+    ]));
+  }
+
+  if (state.error) app.appendChild(el('div', {className: 'error'}, ['⚠ ' + state.error]));
+
+  const genBtn = el('button', {className: 'gen-btn'}, ['🍀  TIPPS GENERIEREN']);
+  genBtn.addEventListener('click', generieren);
+  app.appendChild(genBtn);
+}
+
+function renderResults(app) {
+  const pfSet = new Set(Object.keys(state.haeufig).map(Number).filter(n => state.selected.has(n)));
+
+  // Pflichtzahlen-Tags
+  if (pfSet.size > 0) {
+    const tags = [...pfSet].sort((a,b)=>a-b).map(z =>
+      el('span', {className: 'pflicht-tag'}, [`${z} × ${state.haeufig[z]}`])
+    );
+    app.appendChild(el('div', {className: 'card'}, [
+      el('div', {className: 'card-title'}, ['Pflichtzahlen']),
+      el('div', {className: 'pflicht-tags'}, tags)
+    ]));
+  }
+
+  // Ergebnisse
+  app.appendChild(el('div', {className: 'results-header'}, [
+    el('div', {className: 'results-count'}, [`${state.tipps.length} Tipp${state.tipps.length !== 1 ? 's' : ''} generiert`])
+  ]));
+
+  state.tipps.forEach((tipp, i) => {
+    const bubbles = tipp.map(z =>
+      el('div', {className: 'zahl-bubble ' + (pfSet.has(z) ? 'pflicht' : 'normal')}, [String(z)])
+    );
+    const card = el('div', {className: 'tipp-card'}, [
+      el('div', {className: 'tipp-nr'}, [`Tipp ${i + 1}`]),
+      el('div', {className: 'tipp-zahlen'}, bubbles)
+    ]);
+    card.style.animationDelay = (i * 0.06) + 's';
+    app.appendChild(card);
+  });
+
+  const rerollBtn = el('button', {className: 'gen-btn'}, ['🔄  NOCHMAL WÜRFELN']);
+  rerollBtn.addEventListener('click', generieren);
+  app.appendChild(rerollBtn);
+
+  const resetBtn = el('button', {className: 'sec-btn'}, ['↩  Neue Einstellungen']);
+  resetBtn.addEventListener('click', () => setState({phase: 'setup', tipps: [], error: ''}));
+  app.appendChild(resetBtn);
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function el(tag, props, children = []) {
+  const e = document.createElement(tag);
+  if (props) {
+    for (const [k, v] of Object.entries(props)) {
+      if (k === 'className') e.className = v;
+      else if (k === 'style') Object.assign(e.style, v);
+      else e.setAttribute(k, v);
+    }
+  }
+  for (const c of children) {
+    if (typeof c === 'string') e.appendChild(document.createTextNode(c));
+    else if (c) e.appendChild(c);
+  }
+  return e;
+}
+
+function btn(label, className, onClick) {
+  const b = document.createElement('button');
+  if (className) b.className = className;
+  b.textContent = label;
+  b.addEventListener('click', onClick);
+  return b;
+}
+
+function toggleNum(n) {
+  const sel = new Set(state.selected);
+  const hae = {...state.haeufig};
+  if (sel.has(n)) {
+    sel.delete(n);
+    delete hae[n];
+  } else {
+    if (sel.size >= 10) return;
+    sel.add(n);
+    hae[n] = 1;
+  }
+  setState({selected: sel, haeufig: hae});
+}
+
+function setHaeuf(zahl, delta) {
+  const hae = {...state.haeufig};
+  hae[zahl] = Math.max(1, Math.min(state.anzahl, (hae[zahl] ?? 1) + delta));
+  setState({haeufig: hae});
+}
+
+function generieren() {
+  try {
+    const pf = {};
+    for (const z of state.selected) pf[z] = state.haeufig[z] ?? 1;
+    const tipps = generiereTipps(state.anzahl, pf);
+    setState({tipps, phase: 'results', error: ''});
+  } catch(e) {
+    setState({error: e.message});
+  }
+}
+
+// ── Service Worker ────────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+
+// ── Start ─────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
