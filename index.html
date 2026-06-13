@@ -352,7 +352,8 @@ function renderAuswerten(app) {
   const ji = document.createElement('input');
   ji.type='tel'; ji.maxLength=7; ji.className='joker-input';
   ji.placeholder='0000000'; ji.value=state.joker;
-  ji.oninput=e=>setState({joker:e.target.value.replace(/\D/g,'').slice(0,7)});
+  // Update state quietly without re-rendering on every keystroke (keeps focus)
+  ji.oninput=e=>{ state.joker = e.target.value.replace(/\D/g,'').slice(0,7); e.target.value = state.joker; saveToStorage('lottoState', {savedTipps: state.savedTipps, joker: state.joker}); };
   app.appendChild(ji);
 
   // Auswerten Button
@@ -431,12 +432,27 @@ function renderAuswertungErgebnis(app) {
         if (isZ&&!isHit) cls+='z';
         else if (isHit) cls+='h';
         else cls+='n';
-        return el('div',cls,[String(z)]);
+        const b = el('div',cls,[String(z)]);
+        b.style.width='34px';
+        b.style.height='34px';
+        b.style.borderRadius='50%';
+        b.style.display='flex';
+        b.style.alignItems='center';
+        b.style.justifyContent='center';
+        b.style.flexShrink='0';
+        return b;
       });
 
       const row = el('div','auswertung-row',[
         el('div','auswertung-zahlen',zahlenBubbles)
       ]);
+      row.style.display='flex';
+      row.style.alignItems='center';
+      row.style.flexWrap='wrap';
+      row.style.gap='8px';
+      row.firstChild.style.display='flex';
+      row.firstChild.style.flexWrap='wrap';
+      row.firstChild.style.gap='4px';
       if (gk) {
         const badge = el('span','gewinn-badge g'+(res.count),[gk]);
         row.appendChild(badge);
