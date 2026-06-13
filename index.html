@@ -164,11 +164,15 @@ function checkTipp(tipp, ziehung, zusatz) {
 }
 
 function getGewinnKlasse(count, hasZusatz, isPlus) {
-  if (count === 6) return isPlus ? 'JACKPOT Plus!' : 'JACKPOT! 🎉';
-  if (count === 5 && hasZusatz) return isPlus ? '2. Rang Plus' : '2. Rang';
-  if (count === 5) return isPlus ? '3. Rang Plus' : '3. Rang';
-  if (count === 4) return isPlus ? '4. Rang Plus' : '4. Rang';
-  if (count === 3) return isPlus ? '5. Rang Plus' : '5. Rang (3er)';
+  const suffix = isPlus ? ' Plus' : '';
+  if (count === 6) return (isPlus ? 'JACKPOT' : 'JACKPOT! 🎉') + suffix;
+  if (count === 5 && hasZusatz) return '2. Rang' + suffix;
+  if (count === 5) return '3. Rang' + suffix;
+  if (count === 4 && hasZusatz) return '4. Rang' + suffix;
+  if (count === 4) return '5. Rang' + suffix;
+  if (count === 3 && hasZusatz) return '6. Rang' + suffix;
+  if (count === 3) return '7. Rang (3er)' + suffix;
+  if (count === 2 && hasZusatz) return '8. Rang' + suffix;
   return null;
 }
 
@@ -191,8 +195,6 @@ let state = {
   lottoPlusZ: null,
   joker: stored.joker || '',
   jokerResult: null,
-  auswertungLoading: false,
-  auswertungError: '',
   auswertungDone: false,
   // Auswertungs-Eingabe Modus
   auswertInput: 'lotto', // lotto | plus
@@ -323,22 +325,6 @@ function renderResults(app) {
 
 // ── TAB: Auswerten ───────────────────────────────────────────────────────────
 function renderAuswerten(app) {
-  // Gewinnzahlen laden Button
-  const loadBtn = btn('🌐  GEWINNZAHLEN LADEN','gen-btn', ladeGewinnzahlen);
-  loadBtn.disabled = state.auswertungLoading;
-  app.appendChild(loadBtn);
-
-  if (state.auswertungLoading) {
-    const d = el('div','loading',[]);
-    const sp = el('div','spinner',[]);
-    d.appendChild(sp);
-    d.appendChild(document.createTextNode('Lade aktuelle Gewinnzahlen...'));
-    app.appendChild(d);
-    return;
-  }
-
-  if (state.auswertungError) app.appendChild(el('div','error',['⚠ '+state.auswertungError]));
-
   // Manuelle Eingabe - Lotto
   app.appendChild(el('div','section-label',['Lotto 6 aus 45']));
   app.appendChild(mkZiehungGrid('lotto'));
@@ -541,41 +527,6 @@ function speichern(){
 }
 function auswerten(){
   setState({auswertungDone:true,jokerResult:state.joker?'Bitte manuell prüfen auf lotterien.at':null});
-}
-
-async function ladeGewinnzahlen(){
-  setState({auswertungLoading:true,auswertungError:''});
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6',
-        max_tokens:1000,
-        tools:[{type:'web_search_20250305',name:'web_search'}],
-        messages:[{role:'user',content:'Was sind die aktuellen Gewinnzahlen der österreichischen Lotto 6 aus 45 Ziehung (letzte Ziehung)? Bitte gib mir nur die 6 Zahlen, die Zusatzzahl, und falls verfügbar die 6 Lotto Plus Zahlen und die Lotto Plus Zusatzzahl. Format: LOTTO:1,2,3,4,5,6 ZUSATZ:7 PLUS:1,2,3,4,5,6 PLUSZUSATZ:8'}]}
-      )
-    });
-    const data = await resp.json();
-    // Parse response
-    const text = data.content.filter(c=>c.type==='text').map(c=>c.text).join('');
-    const lottoMatch = text.match(/LOTTO:([\d,]+)/);
-    const zusatzMatch = text.match(/ZUSATZ:(\d+)/);
-    const plusMatch = text.match(/PLUS:([\d,]+)/);
-    const plusZusatzMatch = text.match(/PLUSZUSATZ:(\d+)/);
-
-    if (lottoMatch && zusatzMatch) {
-      const z6 = lottoMatch[1].split(',').map(Number).filter(n=>n>=1&&n<=45).slice(0,6).sort((a,b)=>a-b);
-      const zZ = parseInt(zusatzMatch[1]);
-      const p6 = plusMatch ? plusMatch[1].split(',').map(Number).filter(n=>n>=1&&n<=45).slice(0,6).sort((a,b)=>a-b) : [];
-      const pZ = plusZusatzMatch ? parseInt(plusZusatzMatch[1]) : null;
-      setState({ziehung6:z6,ziehungZ:zZ,lottoPlus6:p6,lottoPlusZ:pZ,auswertungLoading:false,auswertungError:''});
-    } else {
-      setState({auswertungLoading:false,auswertungError:'Zahlen konnten nicht gelesen werden. Bitte manuell eingeben.'});
-    }
-  } catch(e) {
-    setState({auswertungLoading:false,auswertungError:'Netzwerkfehler: '+e.message});
-  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
