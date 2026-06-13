@@ -5,401 +5,203 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <meta name="theme-color" content="#0d0f14"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="Lotto"/>
   <title>Lotto Tipp-Generator</title>
   <link rel="manifest" href="manifest.json"/>
-  <link rel="icon" href="icons/icon-192.png"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="icon" type="image/png" href="data:image/png;base64,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"/>
+  <link rel="apple-touch-icon" href="data:image/png;base64,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"/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:      #0d0f14;
-      --surface: #161920;
-      --card:    #1e2230;
-      --border:  #2a2f42;
-      --gold:    #e8c96a;
-      --gold2:   #f0d98a;
-      --red:     #e05252;
-      --green:   #2ecc71;
-      --text:    #dde1f0;
-      --muted:   #6b7394;
-      --radius:  14px;
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#0d0f14;--surface:#161920;--card:#1e2230;--border:#2a2f42;
+      --gold:#e8c96a;--gold2:#f0d98a;--red:#e05252;--green:#2ecc71;
+      --text:#dde1f0;--muted:#6b7394;--radius:14px;
     }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-      overscroll-behavior: none;
-    }
-
-    .app {
-      max-width: 420px;
-      margin: 0 auto;
-      padding: 16px 16px 60px;
-    }
-
-    /* ── Header ── */
-    .header {
-      text-align: center;
-      padding: 24px 0 20px;
-    }
-    .header-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 54px;
-      letter-spacing: 4px;
-      line-height: 1;
-      background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 60%, #fff8dc 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .header-sub {
-      color: var(--muted);
-      font-size: 11px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-top: 4px;
-    }
-    .header-divider {
-      width: 48px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      margin: 14px auto 0;
-    }
-
-    /* ── Card ── */
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 18px;
-      margin-bottom: 12px;
-    }
-    .card-title {
-      font-size: 10px;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 14px;
-      font-weight: 600;
-    }
-    .hint {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 12px;
-      line-height: 1.5;
-    }
-
-    /* ── Stepper ── */
-    .stepper {
-      display: flex;
-      align-items: center;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .stepper-btn {
-      width: 56px;
-      height: 56px;
-      background: none;
-      border: none;
-      color: var(--gold);
-      font-size: 24px;
-      cursor: pointer;
-      flex-shrink: 0;
-      -webkit-tap-highlight-color: transparent;
-      transition: background 0.12s;
-    }
-    .stepper-btn:active { background: rgba(232,201,106,0.14); }
-    .stepper-val {
-      flex: 1;
-      text-align: center;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 36px;
-      color: var(--text);
-      letter-spacing: 1px;
-      user-select: none;
-    }
-
-    /* ── Zahlen-Gitter ── */
-    .num-grid {
-      display: grid;
-      grid-template-columns: repeat(9, 1fr);
-      gap: 5px;
-    }
-    .num-btn {
-      aspect-ratio: 1;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.1s;
-      -webkit-tap-highlight-color: transparent;
-      font-family: 'DM Sans', sans-serif;
-      padding: 0;
-    }
-    .num-btn:active { transform: scale(0.88); }
-    .num-btn.selected {
-      background: var(--gold);
-      border-color: var(--gold);
-      color: #0d0f14;
-      font-weight: 700;
-    }
-
-    /* ── Pflicht-Liste ── */
-    .pflicht-list { display: flex; flex-direction: column; gap: 9px; }
-    .pflicht-item {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .pflicht-badge {
-      background: var(--gold);
-      color: #0d0f14;
-      font-weight: 700;
-      border-radius: 8px;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 20px;
-      letter-spacing: 0.5px;
-    }
-    .pflicht-label {
-      flex: 1;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-    .pflicht-label span { color: var(--text); font-weight: 600; font-size: 14px; }
-    .pflicht-stepper {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .pflicht-stepper button {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--gold);
-      font-size: 18px;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      transition: background 0.1s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
-    }
-    .pflicht-stepper button:active { background: rgba(232,201,106,0.15); }
-    .pflicht-stepper .count {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 22px;
-      min-width: 22px;
-      text-align: center;
-      color: var(--text);
-    }
-    .pflicht-del {
-      background: none;
-      border: none;
-      color: var(--red);
-      font-size: 16px;
-      cursor: pointer;
-      padding: 6px;
-      -webkit-tap-highlight-color: transparent;
-      line-height: 1;
-    }
-
-    /* ── Buttons ── */
-    .gen-btn {
-      width: 100%;
-      padding: 18px;
-      border-radius: var(--radius);
-      border: none;
-      background: linear-gradient(135deg, var(--gold) 0%, #c9a93a 100%);
-      color: #0d0f14;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 22px;
-      letter-spacing: 3px;
-      cursor: pointer;
-      margin-bottom: 10px;
-      transition: transform 0.1s, opacity 0.1s;
-      -webkit-tap-highlight-color: transparent;
-      box-shadow: 0 4px 20px rgba(232,201,106,0.22);
-    }
-    .gen-btn:active { transform: scale(0.97); opacity: 0.9; }
-
-    .sec-btn {
-      width: 100%;
-      padding: 14px;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      cursor: pointer;
-      margin-bottom: 10px;
-      -webkit-tap-highlight-color: transparent;
-      transition: color 0.15s, border-color 0.15s;
-    }
-    .sec-btn:active { color: var(--text); border-color: var(--muted); }
-
-    /* ── Error ── */
-    .error {
-      background: rgba(224,82,82,0.12);
-      border: 1px solid rgba(224,82,82,0.4);
-      border-radius: 10px;
-      padding: 12px 16px;
-      color: var(--red);
-      font-size: 13px;
-      margin-bottom: 12px;
-      text-align: center;
-    }
-
-    /* ── Ergebnisse ── */
-    .results-header {
-      text-align: center;
-      margin-bottom: 14px;
-    }
-    .results-count {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 14px;
-      letter-spacing: 3px;
-      color: var(--muted);
-      text-transform: uppercase;
-    }
-
-    .tipp-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 10px;
-      opacity: 0;
-      transform: translateY(12px);
-      animation: slideUp 0.28s ease forwards;
-    }
-    @keyframes slideUp {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .tipp-nr {
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-    .tipp-zahlen {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .zahl-bubble {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 19px;
-      letter-spacing: 0.5px;
-      flex-shrink: 0;
-    }
-    .zahl-bubble.normal {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-    .zahl-bubble.pflicht {
-      background: linear-gradient(135deg, var(--gold), #c9a93a);
-      color: #0d0f14;
-      box-shadow: 0 2px 10px rgba(232,201,106,0.35);
-    }
-
-    .pflicht-tags {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-    .pflicht-tag {
-      background: rgba(232,201,106,0.1);
-      border: 1px solid rgba(232,201,106,0.3);
-      border-radius: 8px;
-      padding: 4px 10px;
-      font-size: 13px;
-      color: var(--gold);
-    }
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh;-webkit-font-smoothing:antialiased;overscroll-behavior:none;}
+    .app{max-width:420px;margin:0 auto;padding:16px 16px 60px;}
+    .header{text-align:center;padding:20px 0 16px;}
+    .header-title{font-family:'Bebas Neue',sans-serif;font-size:50px;letter-spacing:4px;line-height:1;background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 60%,#fff8dc 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .header-sub{color:var(--muted);font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-top:4px;}
+    .header-divider{width:48px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:12px auto 0;}
+    /* Tabs */
+    .tabs{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:14px;gap:4px;}
+    .tab{flex:1;padding:10px;border:none;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border-radius:9px;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
+    .tab.active{background:var(--card);color:var(--gold);border:1px solid var(--border);}
+    /* Card */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px;}
+    .card-title{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;font-weight:600;}
+    .hint{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5;}
+    /* Stepper */
+    .stepper{display:flex;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+    .stepper-btn{width:56px;height:56px;background:none;border:none;color:var(--gold);font-size:24px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+    .stepper-btn:active{background:rgba(232,201,106,0.14);}
+    .stepper-val{flex:1;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--text);user-select:none;}
+    /* Num grid */
+    .num-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;}
+    .num-btn{aspect-ratio:1;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:11px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:'DM Sans',sans-serif;padding:0;}
+    .num-btn:active{transform:scale(0.88);}
+    .num-btn.selected{background:var(--gold);border-color:var(--gold);color:#0d0f14;font-weight:700;}
+    /* Pflicht */
+    .pflicht-list{display:flex;flex-direction:column;gap:9px;}
+    .pflicht-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;}
+    .pflicht-badge{background:var(--gold);color:#0d0f14;font-weight:700;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:20px;}
+    .pflicht-label{flex:1;font-size:12px;color:var(--muted);line-height:1.4;}
+    .pflicht-label span{color:var(--text);font-weight:600;font-size:14px;}
+    .pflicht-stepper{display:flex;align-items:center;gap:4px;}
+    .pflicht-stepper button{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--gold);font-size:18px;cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;}
+    .pflicht-stepper .count{font-family:'Bebas Neue',sans-serif;font-size:22px;min-width:22px;text-align:center;color:var(--text);}
+    .pflicht-del{background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:6px;-webkit-tap-highlight-color:transparent;}
+    /* Buttons */
+    .gen-btn{width:100%;padding:17px;border-radius:var(--radius);border:none;background:linear-gradient(135deg,var(--gold) 0%,#c9a93a 100%);color:#0d0f14;font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:3px;cursor:pointer;margin-bottom:10px;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 20px rgba(232,201,106,0.22);}
+    .gen-btn:active{transform:scale(0.97);opacity:0.9;}
+    .gen-btn:disabled{opacity:0.5;cursor:not-allowed;}
+    .sec-btn{width:100%;padding:13px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-bottom:10px;-webkit-tap-highlight-color:transparent;}
+    .sec-btn:active{color:var(--text);}
+    /* Tipp cards */
+    .tipp-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;opacity:0;transform:translateY(10px);animation:slideUp 0.25s ease forwards;}
+    @keyframes slideUp{to{opacity:1;transform:translateY(0);}}
+    .tipp-nr{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+    .tipp-zahlen{display:flex;gap:6px;flex-wrap:wrap;}
+    .zahl-bubble{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;flex-shrink:0;}
+    .zahl-bubble.normal{background:var(--surface);border:1px solid var(--border);color:var(--text);}
+    .zahl-bubble.pflicht{background:linear-gradient(135deg,var(--gold),#c9a93a);color:#0d0f14;box-shadow:0 2px 8px rgba(232,201,106,0.3);}
+    .zahl-bubble.hit{background:linear-gradient(135deg,var(--green),#27ae60);color:#fff;box-shadow:0 2px 8px rgba(46,204,113,0.4);}
+    .zahl-bubble.zusatz{background:linear-gradient(135deg,#9b59b6,#6c3483);color:#fff;box-shadow:0 2px 8px rgba(155,89,182,0.4);}
+    /* Gewinn badge */
+    .gewinn-badge{padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;}
+    .gewinn-badge.g3{background:rgba(232,201,106,0.2);color:var(--gold);border:1px solid rgba(232,201,106,0.4);}
+    .gewinn-badge.g4{background:rgba(46,204,113,0.2);color:var(--green);border:1px solid rgba(46,204,113,0.4);}
+    .gewinn-badge.g5{background:rgba(52,152,219,0.2);color:#3498db;border:1px solid rgba(52,152,219,0.4);}
+    .gewinn-badge.g6{background:rgba(231,76,60,0.2);color:#e74c3c;border:1px solid rgba(231,76,60,0.4);}
+    /* Saved tipps */
+    .saved-list{display:flex;flex-direction:column;gap:10px;}
+    .saved-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+    .saved-meta{font-size:11px;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between;}
+    .saved-zahlen{display:flex;gap:5px;flex-wrap:wrap;}
+    .saved-zahl{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;background:var(--card);border:1px solid var(--border);color:var(--text);}
+    .saved-zahl.hit{background:linear-gradient(135deg,var(--green),#27ae60);color:#fff;border:none;}
+    .saved-zahl.zusatz{background:linear-gradient(135deg,#9b59b6,#6c3483);color:#fff;border:none;}
+    .del-btn{background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:2px 6px;-webkit-tap-highlight-color:transparent;}
+    /* Ziehung eingabe */
+    .ziehung-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:10px;}
+    .ziehung-btn{aspect-ratio:1;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:'DM Sans',sans-serif;padding:0;}
+    .ziehung-btn.sel6{background:var(--gold);border-color:var(--gold);color:#0d0f14;font-weight:700;}
+    .ziehung-btn.selZ{background:#9b59b6;border-color:#9b59b6;color:#fff;font-weight:700;}
+    .ziehung-btn.selP{background:#3498db;border-color:#3498db;color:#fff;font-weight:700;}
+    /* Joker input */
+    .joker-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;text-align:center;outline:none;margin-bottom:10px;}
+    .joker-input::placeholder{color:var(--muted);font-size:20px;letter-spacing:2px;}
+    /* Auswertung */
+    .auswertung-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;}
+    .auswertung-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+    .auswertung-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+    .auswertung-zahlen{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
+    .az{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;flex-shrink:0;}
+    .az.n{background:var(--surface);border:1px solid var(--border);color:var(--text);}
+    .az.h{background:linear-gradient(135deg,var(--green),#27ae60);color:#fff;}
+    .az.z{background:linear-gradient(135deg,#9b59b6,#6c3483);color:#fff;}
+    /* Error/Info */
+    .error{background:rgba(224,82,82,0.12);border:1px solid rgba(224,82,82,0.4);border-radius:10px;padding:12px 16px;color:var(--red);font-size:13px;margin-bottom:12px;text-align:center;}
+    .info{background:rgba(232,201,106,0.08);border:1px solid rgba(232,201,106,0.25);border-radius:10px;padding:12px 16px;color:var(--gold);font-size:13px;margin-bottom:12px;text-align:center;}
+    .loading{text-align:center;padding:30px;color:var(--muted);font-size:14px;}
+    .spinner{display:inline-block;width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:10px;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .pflicht-tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
+    .pflicht-tag{background:rgba(232,201,106,0.1);border:1px solid rgba(232,201,106,0.3);border-radius:8px;padding:4px 10px;font-size:13px;color:var(--gold);}
+    .results-count{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;text-align:center;margin-bottom:12px;}
+    .section-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:14px 0 8px;font-weight:600;}
+    .joker-result{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-top:8px;font-size:13px;color:var(--muted);}
+    .joker-result span{color:var(--gold);font-weight:600;}
   </style>
 </head>
 <body>
 <div class="app" id="app"></div>
-
 <script>
-// ── Lotto-Logik ──────────────────────────────────────────────────────────────
+const APIKEY_PLACEHOLDER = '';
+
+// ── Storage ──────────────────────────────────────────────────────────────────
+function loadState() {
+  try {
+    const s = localStorage.getItem('lottoState');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return {savedTipps: [], ziehung: null, lottoPlus: null, joker: ''};
+}
+function saveToStorage(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+}
+
+// ── Lotto Logik ──────────────────────────────────────────────────────────────
 function sampleN(arr, n) {
   const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
   }
   return a.slice(0, n);
 }
-
 function generiereTipps(anzahl, pflichtzahlen) {
-  const tipps = Array.from({length: anzahl}, () => new Set());
-  const alle = Array.from({length: 45}, (_, i) => i + 1);
-
-  for (const [z, h] of Object.entries(pflichtzahlen)) {
+  const tipps = Array.from({length:anzahl}, () => new Set());
+  const alle = Array.from({length:45}, (_,i) => i+1);
+  for (const [z,h] of Object.entries(pflichtzahlen)) {
     const zahl = parseInt(z);
-    const idxs = sampleN(Array.from({length: anzahl}, (_, i) => i), parseInt(h));
+    const idxs = sampleN(Array.from({length:anzahl},(_,i)=>i), parseInt(h));
     idxs.forEach(i => tipps[i].add(zahl));
   }
-
   for (const tipp of tipps) {
-    const verfuegbar = alle.filter(z => !tipp.has(z));
-    sampleN(verfuegbar, 6 - tipp.size).forEach(z => tipp.add(z));
+    const v = alle.filter(z => !tipp.has(z));
+    sampleN(v, 6-tipp.size).forEach(z => tipp.add(z));
   }
-
-  return tipps.map(t => [...t].sort((a, b) => a - b));
+  return tipps.map(t => [...t].sort((a,b)=>a-b));
 }
 
-// ── State ────────────────────────────────────────────────────────────────────
+function checkTipp(tipp, ziehung, zusatz) {
+  if (!ziehung) return null;
+  const hits = tipp.filter(z => ziehung.includes(z));
+  const hasZusatz = zusatz && tipp.includes(zusatz);
+  return {hits, hasZusatz, count: hits.length};
+}
+
+function getGewinnKlasse(count, hasZusatz, isPlus) {
+  if (count === 6) return isPlus ? 'JACKPOT Plus!' : 'JACKPOT! 🎉';
+  if (count === 5 && hasZusatz) return isPlus ? '2. Rang Plus' : '2. Rang';
+  if (count === 5) return isPlus ? '3. Rang Plus' : '3. Rang';
+  if (count === 4) return isPlus ? '4. Rang Plus' : '4. Rang';
+  if (count === 3) return isPlus ? '5. Rang Plus' : '5. Rang (3er)';
+  return null;
+}
+
+// ── App State ─────────────────────────────────────────────────────────────────
+const stored = loadState();
 let state = {
-  phase: 'setup',       // 'setup' | 'results'
+  tab: 'tipps',          // tipps | auswerten | gespeichert
+  phase: 'setup',        // setup | results
   anzahl: 6,
-  selected: new Set(),  // gewählte Pflichtzahlen
-  haeufig: {},          // {zahl: anzahl}
+  selected: new Set(),
+  haeufig: {},
   tipps: [],
-  error: ''
+  error: '',
+  // Gespeicherte Tipps
+  savedTipps: stored.savedTipps || [],
+  // Auswertung
+  ziehung6: [],          // max 6 Zahlen
+  ziehungZ: null,        // Zusatzzahl
+  lottoPlus6: [],
+  lottoPlusZ: null,
+  joker: stored.joker || '',
+  jokerResult: null,
+  auswertungLoading: false,
+  auswertungError: '',
+  auswertungDone: false,
+  // Auswertungs-Eingabe Modus
+  auswertInput: 'lotto', // lotto | plus
 };
 
 function setState(patch) {
   Object.assign(state, patch);
+  if (patch.savedTipps !== undefined) saveToStorage('lottoState', {savedTipps: state.savedTipps, joker: state.joker});
+  if (patch.joker !== undefined) saveToStorage('lottoState', {savedTipps: state.savedTipps, joker: state.joker});
   render();
 }
 
@@ -407,179 +209,380 @@ function setState(patch) {
 function render() {
   const app = document.getElementById('app');
   app.innerHTML = '';
+  app.appendChild(mkHeader());
+  app.appendChild(mkTabs());
+  if (state.tab === 'tipps') renderTipps(app);
+  else if (state.tab === 'auswerten') renderAuswerten(app);
+  else renderGespeichert(app);
+}
 
-  const header = el('div', {className: 'header'}, [
-    el('div', {className: 'header-title'}, ['🍀 LOTTO']),
-    el('div', {className: 'header-sub'}, ['6 aus 45 · Tipp-Generator']),
-    el('div', {className: 'header-divider'})
+function mkHeader() {
+  return el('div', 'header', [
+    el('div', 'header-title', ['🍀 LOTTO']),
+    el('div', 'header-sub', ['6 aus 45 · Tipp-Generator']),
+    el('div', 'header-divider', [])
   ]);
-  app.appendChild(header);
+}
 
+function mkTabs() {
+  const tabs = ['tipps','auswerten','gespeichert'];
+  const labels = ['🎯 Tipps','🔍 Auswerten','💾 Gespeichert'];
+  const d = el('div', 'tabs', tabs.map((t,i) => {
+    const b = el('button', 'tab' + (state.tab===t?' active':''), [labels[i]]);
+    b.onclick = () => setState({tab: t});
+    return b;
+  }));
+  return d;
+}
+
+// ── TAB: Tipps ───────────────────────────────────────────────────────────────
+function renderTipps(app) {
   if (state.phase === 'setup') renderSetup(app);
   else renderResults(app);
 }
 
 function renderSetup(app) {
-  // Anzahl Tipps
-  app.appendChild(el('div', {className: 'card'}, [
-    el('div', {className: 'card-title'}, ['Anzahl Tipps']),
-    el('div', {className: 'stepper'}, [
-      btn('−', 'stepper-btn', () => setState({anzahl: Math.max(1, state.anzahl - 1)})),
-      el('div', {className: 'stepper-val'}, [String(state.anzahl)]),
-      btn('+', 'stepper-btn', () => setState({anzahl: Math.min(20, state.anzahl + 1)}))
+  // Anzahl
+  app.appendChild(el('div', 'card', [
+    el('div', 'card-title', ['Anzahl Tipps']),
+    el('div', 'stepper', [
+      btn('−','stepper-btn', () => setState({anzahl:Math.max(1,state.anzahl-1)})),
+      el('div', 'stepper-val', [String(state.anzahl)]),
+      btn('+','stepper-btn', () => setState({anzahl:Math.min(20,state.anzahl+1)}))
     ])
   ]));
 
-  // Zahlen-Gitter
-  const numBtns = Array.from({length: 45}, (_, i) => {
-    const n = i + 1;
-    const sel = state.selected.has(n);
-    const b = el('button', {
-      className: 'num-btn' + (sel ? ' selected' : '')
-    }, [String(n)]);
-    b.addEventListener('click', () => toggleNum(n));
+  // Zahlen
+  const numBtns = Array.from({length:45},(_,i)=>{
+    const n=i+1;
+    const b=el('button','num-btn'+(state.selected.has(n)?' selected':''),[String(n)]);
+    b.onclick=()=>toggleNum(n);
     return b;
   });
-  app.appendChild(el('div', {className: 'card'}, [
-    el('div', {className: 'card-title'}, ['Pflichtzahlen (optional)']),
-    el('p', {className: 'hint'}, ['Tippe auf eine Zahl → wird zur Pflichtzahl. Max. 10.']),
-    el('div', {className: 'num-grid'}, numBtns)
+  app.appendChild(el('div','card',[
+    el('div','card-title',['Pflichtzahlen (optional)']),
+    el('p','hint',['Tippe auf eine Zahl → Pflichtzahl. Max. 10.']),
+    el('div','num-grid',numBtns)
   ]));
 
   // Häufigkeiten
   if (state.selected.size > 0) {
-    const items = [...state.selected].sort((a,b) => a-b).map(zahl => {
-      const h = state.haeufig[zahl] ?? 1;
-      return el('div', {className: 'pflicht-item'}, [
-        el('div', {className: 'pflicht-badge'}, [String(zahl)]),
-        el('div', {className: 'pflicht-label'}, [
-          'In ', el('span', {}, [String(h)]), ` von ${state.anzahl} Tipps`
+    const items = [...state.selected].sort((a,b)=>a-b).map(zahl => {
+      const h = state.haeufig[zahl]??1;
+      return el('div','pflicht-item',[
+        el('div','pflicht-badge',[String(zahl)]),
+        el('div','pflicht-label',['In ',el('span','',[String(h)]),` von ${state.anzahl} Tipps`]),
+        el('div','pflicht-stepper',[
+          btn('−',null,()=>setHaeuf(zahl,-1)),
+          el('span','count',[String(h)]),
+          btn('+',null,()=>setHaeuf(zahl,+1))
         ]),
-        el('div', {className: 'pflicht-stepper'}, [
-          btn('−', null, () => setHaeuf(zahl, -1)),
-          el('span', {className: 'count'}, [String(h)]),
-          btn('+', null, () => setHaeuf(zahl, +1))
-        ]),
-        btn('✕', 'pflicht-del', () => toggleNum(zahl))
+        btn('✕','pflicht-del',()=>toggleNum(zahl))
       ]);
     });
-    app.appendChild(el('div', {className: 'card'}, [
-      el('div', {className: 'card-title'}, ['In wie vielen Tipps?']),
-      el('div', {className: 'pflicht-list'}, items)
+    app.appendChild(el('div','card',[
+      el('div','card-title',['In wie vielen Tipps?']),
+      el('div','pflicht-list',items)
     ]));
   }
 
-  if (state.error) app.appendChild(el('div', {className: 'error'}, ['⚠ ' + state.error]));
+  if (state.error) app.appendChild(el('div','error',['⚠ '+state.error]));
 
-  const genBtn = el('button', {className: 'gen-btn'}, ['🍀  TIPPS GENERIEREN']);
-  genBtn.addEventListener('click', generieren);
-  app.appendChild(genBtn);
+  const g = btn('🍀  TIPPS GENERIEREN','gen-btn', generieren);
+  app.appendChild(g);
 }
 
 function renderResults(app) {
-  const pfSet = new Set(Object.keys(state.haeufig).map(Number).filter(n => state.selected.has(n)));
+  const pfSet = new Set(Object.keys(state.haeufig).map(Number).filter(n=>state.selected.has(n)));
 
-  // Pflichtzahlen-Tags
   if (pfSet.size > 0) {
-    const tags = [...pfSet].sort((a,b)=>a-b).map(z =>
-      el('span', {className: 'pflicht-tag'}, [`${z} × ${state.haeufig[z]}`])
-    );
-    app.appendChild(el('div', {className: 'card'}, [
-      el('div', {className: 'card-title'}, ['Pflichtzahlen']),
-      el('div', {className: 'pflicht-tags'}, tags)
-    ]));
+    const tags = [...pfSet].sort((a,b)=>a-b).map(z=>el('span','pflicht-tag',[`${z} × ${state.haeufig[z]}`]));
+    app.appendChild(el('div','card',[el('div','card-title',['Pflichtzahlen']),el('div','pflicht-tags',tags)]));
   }
 
-  // Ergebnisse
-  app.appendChild(el('div', {className: 'results-header'}, [
-    el('div', {className: 'results-count'}, [`${state.tipps.length} Tipp${state.tipps.length !== 1 ? 's' : ''} generiert`])
-  ]));
+  app.appendChild(el('div','results-count',[`${state.tipps.length} Tipp${state.tipps.length!==1?'s':''} generiert`]));
 
-  state.tipps.forEach((tipp, i) => {
-    const bubbles = tipp.map(z =>
-      el('div', {className: 'zahl-bubble ' + (pfSet.has(z) ? 'pflicht' : 'normal')}, [String(z)])
-    );
-    const card = el('div', {className: 'tipp-card'}, [
-      el('div', {className: 'tipp-nr'}, [`Tipp ${i + 1}`]),
-      el('div', {className: 'tipp-zahlen'}, bubbles)
+  state.tipps.forEach((tipp,i) => {
+    const bubbles = tipp.map(z=>el('div','zahl-bubble '+(pfSet.has(z)?'pflicht':'normal'),[String(z)]));
+    const card = el('div','tipp-card',[
+      el('div','tipp-nr',[`Tipp ${i+1}`]),
+      el('div','tipp-zahlen',bubbles)
     ]);
-    card.style.animationDelay = (i * 0.06) + 's';
+    card.style.animationDelay=(i*0.06)+'s';
     app.appendChild(card);
   });
 
-  const rerollBtn = el('button', {className: 'gen-btn'}, ['🔄  NOCHMAL WÜRFELN']);
-  rerollBtn.addEventListener('click', generieren);
-  app.appendChild(rerollBtn);
+  const saveBtn = btn('💾  TIPPS SPEICHERN','gen-btn', speichern);
+  app.appendChild(saveBtn);
 
-  const resetBtn = el('button', {className: 'sec-btn'}, ['↩  Neue Einstellungen']);
-  resetBtn.addEventListener('click', () => setState({phase: 'setup', tipps: [], error: ''}));
-  app.appendChild(resetBtn);
+  const r = btn('🔄  NOCHMAL WÜRFELN','sec-btn', generieren);
+  app.appendChild(r);
+  const s = btn('↩  Neue Einstellungen','sec-btn',()=>setState({phase:'setup',tipps:[],error:''}));
+  app.appendChild(s);
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-function el(tag, props, children = []) {
-  const e = document.createElement(tag);
-  if (props) {
-    for (const [k, v] of Object.entries(props)) {
-      if (k === 'className') e.className = v;
-      else if (k === 'style') Object.assign(e.style, v);
-      else e.setAttribute(k, v);
-    }
+// ── TAB: Auswerten ───────────────────────────────────────────────────────────
+function renderAuswerten(app) {
+  // Gewinnzahlen laden Button
+  const loadBtn = btn('🌐  GEWINNZAHLEN LADEN','gen-btn', ladeGewinnzahlen);
+  loadBtn.disabled = state.auswertungLoading;
+  app.appendChild(loadBtn);
+
+  if (state.auswertungLoading) {
+    const d = el('div','loading',[]);
+    const sp = el('div','spinner',[]);
+    d.appendChild(sp);
+    d.appendChild(document.createTextNode('Lade aktuelle Gewinnzahlen...'));
+    app.appendChild(d);
+    return;
   }
-  for (const c of children) {
-    if (typeof c === 'string') e.appendChild(document.createTextNode(c));
-    else if (c) e.appendChild(c);
-  }
-  return e;
-}
 
-function btn(label, className, onClick) {
-  const b = document.createElement('button');
-  if (className) b.className = className;
-  b.textContent = label;
-  b.addEventListener('click', onClick);
-  return b;
-}
+  if (state.auswertungError) app.appendChild(el('div','error',['⚠ '+state.auswertungError]));
 
-function toggleNum(n) {
-  const sel = new Set(state.selected);
-  const hae = {...state.haeufig};
-  if (sel.has(n)) {
-    sel.delete(n);
-    delete hae[n];
+  // Manuelle Eingabe - Lotto
+  app.appendChild(el('div','section-label',['Lotto 6 aus 45']));
+  app.appendChild(mkZiehungGrid('lotto'));
+
+  // Manuelle Eingabe - Lotto Plus
+  app.appendChild(el('div','section-label',['Lotto Plus']));
+  app.appendChild(mkZiehungGrid('plus'));
+
+  // Joker
+  app.appendChild(el('div','section-label',['Joker (7-stellig)']));
+  const ji = document.createElement('input');
+  ji.type='tel'; ji.maxLength=7; ji.className='joker-input';
+  ji.placeholder='0000000'; ji.value=state.joker;
+  ji.oninput=e=>setState({joker:e.target.value.replace(/\D/g,'').slice(0,7)});
+  app.appendChild(ji);
+
+  // Auswerten Button
+  if (state.ziehung6.length === 6 && state.ziehungZ) {
+    const ab = btn('🔍  JETZT AUSWERTEN','gen-btn', auswerten);
+    app.appendChild(ab);
   } else {
-    if (sel.size >= 10) return;
-    sel.add(n);
-    hae[n] = 1;
+    app.appendChild(el('div','info',['Bitte alle 6 Lotto-Zahlen + Zusatzzahl auswählen']));
   }
-  setState({selected: sel, haeufig: hae});
+
+  // Ergebnisse
+  if (state.auswertungDone) renderAuswertungErgebnis(app);
 }
 
-function setHaeuf(zahl, delta) {
-  const hae = {...state.haeufig};
-  hae[zahl] = Math.max(1, Math.min(state.anzahl, (hae[zahl] ?? 1) + delta));
-  setState({haeufig: hae});
+function mkZiehungGrid(mode) {
+  const selected6 = mode==='lotto' ? state.ziehung6 : state.lottoPlus6;
+  const selectedZ = mode==='lotto' ? state.ziehungZ : state.lottoPlusZ;
+  const max = 6;
+  const btns = Array.from({length:45},(_,i)=>{
+    const n=i+1;
+    const is6=selected6.includes(n);
+    const isZ=selectedZ===n;
+    let cls='ziehung-btn';
+    if (is6) cls+=' sel6';
+    else if (isZ) cls+=' selZ';
+    const b=el('button',cls,[String(n)]);
+    b.onclick=()=>{
+      let s6=[...selected6], sZ=selectedZ;
+      if (is6) { s6=s6.filter(x=>x!==n); }
+      else if (isZ) { sZ=null; }
+      else if (s6.length<max) { s6=[...s6,n].sort((a,b)=>a-b); }
+      else if (!sZ) { sZ=n; }
+      if (mode==='lotto') setState({ziehung6:s6,ziehungZ:sZ,auswertungDone:false});
+      else setState({lottoPlus6:s6,lottoPlusZ:sZ,auswertungDone:false});
+    };
+    return b;
+  });
+  // Anzeige ausgewählte Zahlen
+  const disp = el('div','tipp-zahlen',[
+    ...selected6.map(z=>el('div','zahl-bubble hit',[String(z)])),
+    ...(selectedZ?[el('div','zahl-bubble zusatz',[String(selectedZ)])]:[]),
+    ...(selected6.length<max?[el('div','zahl-bubble normal',['?'])]:[])
+  ]);
+  disp.style.marginBottom='10px';
+  const wrap = el('div','card',[disp, el('div','ziehung-grid',btns)]);
+  const hint = el('p','hint',[`Erst 6 Zahlen wählen, dann Zusatzzahl (lila). Ausgewählt: ${selected6.length}/6${selectedZ?' + Zusatz':''}`]);
+  wrap.insertBefore(hint, wrap.firstChild);
+  return wrap;
 }
 
-function generieren() {
-  try {
-    const pf = {};
-    for (const z of state.selected) pf[z] = state.haeufig[z] ?? 1;
-    const tipps = generiereTipps(state.anzahl, pf);
-    setState({tipps, phase: 'results', error: ''});
-  } catch(e) {
-    setState({error: e.message});
+function renderAuswertungErgebnis(app) {
+  if (state.savedTipps.length === 0) {
+    app.appendChild(el('div','info',['Keine gespeicherten Tipps zum Auswerten. Generiere und speichere zuerst Tipps!']));
+    return;
+  }
+
+  app.appendChild(el('div','section-label',['Auswertung deiner Tipps']));
+
+  let hatGewinn = false;
+  state.savedTipps.forEach((eintrag, ei) => {
+    const d = el('div','auswertung-card',[]);
+    const meta = el('div','auswertung-title',[`${eintrag.datum} — ${eintrag.tipps.length} Tipp${eintrag.tipps.length!==1?'s':''}`]);
+    d.appendChild(meta);
+
+    eintrag.tipps.forEach((tipp,ti) => {
+      const res = checkTipp(tipp, state.ziehung6, state.ziehungZ);
+      const resP = state.lottoPlus6.length===6 ? checkTipp(tipp, state.lottoPlus6, state.lottoPlusZ) : null;
+      const gk = res ? getGewinnKlasse(res.count, res.hasZusatz, false) : null;
+      const gkP = resP ? getGewinnKlasse(resP.count, resP.hasZusatz, true) : null;
+      if (gk||gkP) hatGewinn=true;
+
+      const zahlenBubbles = tipp.map(z => {
+        const isHit=state.ziehung6.includes(z);
+        const isZ=state.ziehungZ===z;
+        let cls='az ';
+        if (isZ&&!isHit) cls+='z';
+        else if (isHit) cls+='h';
+        else cls+='n';
+        return el('div',cls,[String(z)]);
+      });
+
+      const row = el('div','auswertung-row',[
+        el('div','auswertung-zahlen',zahlenBubbles)
+      ]);
+      if (gk) {
+        const badge = el('span','gewinn-badge g'+(res.count),[gk]);
+        row.appendChild(badge);
+      }
+      if (gkP) {
+        const badge = el('span','gewinn-badge g'+(resP.count),['Plus: '+gkP]);
+        badge.style.marginLeft='4px';
+        row.appendChild(badge);
+      }
+      d.appendChild(row);
+    });
+
+    app.appendChild(d);
+  });
+
+  // Joker Auswertung
+  if (state.joker.length === 7 && state.jokerResult !== null) {
+    const jr = el('div','joker-result',[
+      'Joker: ',el('span','',['Deine Nr: '+state.joker+' — '+state.jokerResult])
+    ]);
+    app.appendChild(jr);
+  }
+
+  if (!hatGewinn) {
+    app.appendChild(el('div','info',['Leider kein Treffer diesmal. Beim nächsten Mal! 🍀']));
   }
 }
 
-// ── Service Worker ────────────────────────────────────────────────────────────
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+// ── TAB: Gespeichert ─────────────────────────────────────────────────────────
+function renderGespeichert(app) {
+  if (state.savedTipps.length === 0) {
+    app.appendChild(el('div','info',['Noch keine gespeicherten Tipps. Generiere Tipps und tippe auf "Tipps speichern"!']));
+    return;
+  }
+
+  const clearBtn = btn('🗑  ALLE LÖSCHEN','sec-btn',()=>{
+    if (confirm('Alle gespeicherten Tipps löschen?')) setState({savedTipps:[]});
+  });
+  app.appendChild(clearBtn);
+
+  state.savedTipps.slice().reverse().forEach((eintrag, i) => {
+    const realIdx = state.savedTipps.length-1-i;
+    const header = el('div','saved-meta',[
+      document.createTextNode(eintrag.datum+' — '+eintrag.tipps.length+' Tipps'),
+    ]);
+    const delBtn = btn('✕','del-btn',()=>{
+      const neu=[...state.savedTipps];
+      neu.splice(realIdx,1);
+      setState({savedTipps:neu});
+    });
+    header.appendChild(delBtn);
+
+    const tippRows = eintrag.tipps.map((tipp,ti) => {
+      const zahlen = tipp.map(z => el('div','saved-zahl',[String(z)]));
+      return el('div','',[ el('div','saved-meta',[`Tipp ${ti+1}`]), el('div','saved-zahlen',zahlen) ]);
+    });
+
+    app.appendChild(el('div','saved-item',[header, ...tippRows]));
   });
 }
 
-// ── Start ─────────────────────────────────────────────────────────────────────
+// ── Actions ───────────────────────────────────────────────────────────────────
+function toggleNum(n) {
+  const sel=new Set(state.selected),hae={...state.haeufig};
+  if(sel.has(n)){sel.delete(n);delete hae[n];}
+  else{if(sel.size>=10)return;sel.add(n);hae[n]=1;}
+  setState({selected:sel,haeufig:hae});
+}
+function setHaeuf(zahl,delta){
+  const hae={...state.haeufig};
+  hae[zahl]=Math.max(1,Math.min(state.anzahl,(hae[zahl]??1)+delta));
+  setState({haeufig:hae});
+}
+function generieren(){
+  try{
+    const pf={};
+    for(const z of state.selected)pf[z]=state.haeufig[z]??1;
+    const tipps=generiereTipps(state.anzahl,pf);
+    setState({tipps,phase:'results',error:''});
+  }catch(e){setState({error:e.message});}
+}
+function speichern(){
+  const datum=new Date().toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const eintrag={datum,tipps:state.tipps};
+  setState({savedTipps:[...state.savedTipps,eintrag],tab:'gespeichert'});
+}
+function auswerten(){
+  setState({auswertungDone:true,jokerResult:state.joker?'Bitte manuell prüfen auf lotterien.at':null});
+}
+
+async function ladeGewinnzahlen(){
+  setState({auswertungLoading:true,auswertungError:''});
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        messages:[{role:'user',content:'Was sind die aktuellen Gewinnzahlen der österreichischen Lotto 6 aus 45 Ziehung (letzte Ziehung)? Bitte gib mir nur die 6 Zahlen, die Zusatzzahl, und falls verfügbar die 6 Lotto Plus Zahlen und die Lotto Plus Zusatzzahl. Format: LOTTO:1,2,3,4,5,6 ZUSATZ:7 PLUS:1,2,3,4,5,6 PLUSZUSATZ:8'}]}
+      )
+    });
+    const data = await resp.json();
+    // Parse response
+    const text = data.content.filter(c=>c.type==='text').map(c=>c.text).join('');
+    const lottoMatch = text.match(/LOTTO:([\d,]+)/);
+    const zusatzMatch = text.match(/ZUSATZ:(\d+)/);
+    const plusMatch = text.match(/PLUS:([\d,]+)/);
+    const plusZusatzMatch = text.match(/PLUSZUSATZ:(\d+)/);
+
+    if (lottoMatch && zusatzMatch) {
+      const z6 = lottoMatch[1].split(',').map(Number).filter(n=>n>=1&&n<=45).slice(0,6).sort((a,b)=>a-b);
+      const zZ = parseInt(zusatzMatch[1]);
+      const p6 = plusMatch ? plusMatch[1].split(',').map(Number).filter(n=>n>=1&&n<=45).slice(0,6).sort((a,b)=>a-b) : [];
+      const pZ = plusZusatzMatch ? parseInt(plusZusatzMatch[1]) : null;
+      setState({ziehung6:z6,ziehungZ:zZ,lottoPlus6:p6,lottoPlusZ:pZ,auswertungLoading:false,auswertungError:''});
+    } else {
+      setState({auswertungLoading:false,auswertungError:'Zahlen konnten nicht gelesen werden. Bitte manuell eingeben.'});
+    }
+  } catch(e) {
+    setState({auswertungLoading:false,auswertungError:'Netzwerkfehler: '+e.message});
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function el(tag, cls, children=[]) {
+  const e=document.createElement(tag);
+  if(cls)e.className=cls;
+  for(const c of children){
+    if(typeof c==='string')e.appendChild(document.createTextNode(c));
+    else if(c)e.appendChild(c);
+  }
+  return e;
+}
+function btn(label,cls,onClick){
+  const b=document.createElement('button');
+  if(cls)b.className=cls;
+  b.textContent=label;
+  b.onclick=onClick;
+  return b;
+}
+
+if('serviceWorker'in navigator)
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+
 render();
 </script>
 </body>
