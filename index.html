@@ -95,12 +95,16 @@
     /* Auswertung */
     .auswertung-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;}
     .auswertung-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
-    .auswertung-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-    .auswertung-zahlen{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
-    .az{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;flex-shrink:0;}
+    .auswertung-tipp{padding:8px;border-radius:10px;margin-bottom:8px;}
+    .auswertung-tipp.win{border:1px solid var(--gold);background:rgba(232,201,106,0.06);}
+    .auswertung-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+    .auswertung-zahlen{display:flex;gap:4px;flex-wrap:nowrap;flex:1;}
+    .auswertung-badges{display:flex;gap:6px;flex-wrap:wrap;}
+    .az{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:15px;flex-shrink:0;position:relative;}
     .az.n{background:var(--surface);border:1px solid var(--border);color:var(--text);}
     .az.h{background:linear-gradient(135deg,var(--green),#27ae60);color:#fff;}
     .az.z{background:linear-gradient(135deg,#9b59b6,#6c3483);color:#fff;}
+    .az.plusring{box-shadow:0 0 0 3px var(--gold);}
     /* Error/Info */
     .error{background:rgba(224,82,82,0.12);border:1px solid rgba(224,82,82,0.4);border-radius:10px;padding:12px 16px;color:var(--red);font-size:13px;margin-bottom:12px;text-align:center;}
     .info{background:rgba(232,201,106,0.08);border:1px solid rgba(232,201,106,0.25);border-radius:10px;padding:12px 16px;color:var(--gold);font-size:13px;margin-bottom:12px;text-align:center;}
@@ -165,14 +169,14 @@ function checkTipp(tipp, ziehung, zusatz) {
 
 function getGewinnKlasse(count, hasZusatz, isPlus) {
   const suffix = isPlus ? ' Plus' : '';
-  if (count === 6) return (isPlus ? 'JACKPOT' : 'JACKPOT! 🎉') + suffix;
-  if (count === 5 && hasZusatz) return '2. Rang' + suffix;
-  if (count === 5) return '3. Rang' + suffix;
-  if (count === 4 && hasZusatz) return '4. Rang' + suffix;
-  if (count === 4) return '5. Rang' + suffix;
-  if (count === 3 && hasZusatz) return '6. Rang' + suffix;
-  if (count === 3) return '7. Rang (3er)' + suffix;
-  if (count === 2 && hasZusatz) return '8. Rang' + suffix;
+  if (count === 6) return '6er' + suffix;
+  if (count === 5 && hasZusatz) return '5erZZ' + suffix;
+  if (count === 5) return '5er' + suffix;
+  if (count === 4 && hasZusatz) return '4erZZ' + suffix;
+  if (count === 4) return '4er' + suffix;
+  if (count === 3 && hasZusatz) return '3erZZ' + suffix;
+  if (count === 3) return '3er' + suffix;
+  if (count === 2 && hasZusatz) return 'ZZ' + suffix;
   return null;
 }
 
@@ -409,46 +413,37 @@ function renderAuswertungErgebnis(app) {
       const resP = state.lottoPlus6.length===6 ? checkTipp(tipp, state.lottoPlus6, state.lottoPlusZ) : null;
       const gk = res ? getGewinnKlasse(res.count, res.hasZusatz, false) : null;
       const gkP = resP ? getGewinnKlasse(resP.count, resP.hasZusatz, true) : null;
-      if (gk||gkP) hatGewinn=true;
+      const isWin = !!(gk || gkP);
+      if (isWin) hatGewinn=true;
 
       const zahlenBubbles = tipp.map(z => {
-        const isHit=state.ziehung6.includes(z);
-        const isZ=state.ziehungZ===z;
+        const isHit = state.ziehung6.includes(z);
+        const isZ = state.ziehungZ===z;
+        const isPlusHit = resP && state.lottoPlus6.includes(z);
+        const isPlusZ = resP && state.lottoPlusZ===z;
         let cls='az ';
         if (isZ&&!isHit) cls+='z';
         else if (isHit) cls+='h';
+        else if (isPlusZ&&!isPlusHit) cls+='z';
+        else if (isPlusHit) cls+='h';
         else cls+='n';
+        if ((isPlusHit||isPlusZ) && !(isHit||isZ)) cls+=' plusring';
+        else if ((isHit||isZ) && (isPlusHit||isPlusZ)) cls+=' plusring';
         const b = el('div',cls,[String(z)]);
-        b.style.width='34px';
-        b.style.height='34px';
-        b.style.borderRadius='50%';
-        b.style.display='flex';
-        b.style.alignItems='center';
-        b.style.justifyContent='center';
-        b.style.flexShrink='0';
         return b;
       });
 
       const row = el('div','auswertung-row',[
         el('div','auswertung-zahlen',zahlenBubbles)
       ]);
-      row.style.display='flex';
-      row.style.alignItems='center';
-      row.style.flexWrap='wrap';
-      row.style.gap='8px';
-      row.firstChild.style.display='flex';
-      row.firstChild.style.flexWrap='wrap';
-      row.firstChild.style.gap='4px';
-      if (gk) {
-        const badge = el('span','gewinn-badge g'+(res.count),[gk]);
-        row.appendChild(badge);
-      }
-      if (gkP) {
-        const badge = el('span','gewinn-badge g'+(resP.count),['Plus: '+gkP]);
-        badge.style.marginLeft='4px';
-        row.appendChild(badge);
-      }
-      d.appendChild(row);
+
+      const badges = el('div','auswertung-badges',[]);
+      if (gk) badges.appendChild(el('span','gewinn-badge g'+(res.count),[gk]));
+      if (gkP) badges.appendChild(el('span','gewinn-badge g'+(resP.count),[gkP]));
+
+      const tippWrap = el('div','auswertung-tipp'+(isWin?' win':''),[row]);
+      if (badges.children.length>0) tippWrap.appendChild(badges);
+      d.appendChild(tippWrap);
     });
 
     app.appendChild(d);
