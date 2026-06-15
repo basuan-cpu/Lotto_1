@@ -183,7 +183,7 @@ function getGewinnKlasse(count, hasZusatz, isPlus) {
   if (count === 4) return '4er';
   if (count === 3 && hasZusatz) return '3erZZ';
   if (count === 3) return '3er';
-  if (count === 2 && hasZusatz) return 'ZZ';
+  if (count === 0 && hasZusatz) return 'ZZ';
   return null;
 }
 
