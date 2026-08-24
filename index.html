@@ -89,6 +89,7 @@
     .ziehung-btn.sel6{background:var(--gold);border-color:var(--gold);color:#0d0f14;font-weight:700;}
     .ziehung-btn.selZ{background:#9b59b6;border-color:#9b59b6;color:#fff;font-weight:700;}
     .ziehung-btn.selP{background:#3498db;border-color:#3498db;color:#fff;font-weight:700;}
+    .ziehung-btn.selP2{background:#16a596;border-color:#16a596;color:#fff;font-weight:700;}
     /* Joker input */
     .joker-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;text-align:center;outline:none;margin-bottom:10px;}
     .joker-input::placeholder{color:var(--muted);font-size:20px;letter-spacing:2px;}
@@ -104,6 +105,8 @@
     .az.n{background:var(--surface);border:1px solid var(--border);color:var(--text);}
     .az.h{background:linear-gradient(135deg,var(--green),#27ae60);color:#fff;}
     .az.z{background:linear-gradient(135deg,#9b59b6,#6c3483);color:#fff;}
+    .az.p1{background:linear-gradient(135deg,#3498db,#2874a6);color:#fff;}
+    .az.p2{background:linear-gradient(135deg,#16a596,#0e7a6e);color:#fff;}
     .az.plusring{box-shadow:0 0 0 3px var(--gold);}
     /* Error/Info */
     .error{background:rgba(224,82,82,0.12);border:1px solid rgba(224,82,82,0.4);border-radius:10px;padding:12px 16px;color:var(--red);font-size:13px;margin-bottom:12px;text-align:center;}
@@ -130,10 +133,29 @@ function loadState() {
     const s = localStorage.getItem('lottoState');
     if (s) return JSON.parse(s);
   } catch(e) {}
-  return {savedTipps: [], ziehung: null, lottoPlus: null, joker: ''};
+  return {
+    savedTipps: [], joker: '',
+    ziehung6: [], ziehungZ: null,
+    plus1_6: [], plus2_6: [],
+    auswertungDone: false, jokerResult: null
+  };
 }
 function saveToStorage(key, val) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+}
+// Persistiert alle Auswertungs-relevanten Felder – wird bei JEDER Änderung aufgerufen,
+// damit nichts mehr verloren geht, egal ob man aktiv "speichern" klickt.
+function persist() {
+  saveToStorage('lottoState', {
+    savedTipps: state.savedTipps,
+    joker: state.joker,
+    ziehung6: state.ziehung6,
+    ziehungZ: state.ziehungZ,
+    plus1_6: state.plus1_6,
+    plus2_6: state.plus2_6,
+    auswertungDone: state.auswertungDone,
+    jokerResult: state.jokerResult
+  });
 }
 
 // ── Lotto Logik ──────────────────────────────────────────────────────────────
@@ -167,13 +189,14 @@ function checkTipp(tipp, ziehung, zusatz) {
   return {hits, hasZusatz, count: hits.length};
 }
 
-function getGewinnKlasse(count, hasZusatz, isPlus) {
-  if (isPlus) {
-    // Lotto Plus hat keine Zusatzzahl
-    if (count === 6) return '6er Plus';
-    if (count === 5) return '5er Plus';
-    if (count === 4) return '4er Plus';
-    if (count === 3) return '3er Plus';
+function getGewinnKlasse(count, hasZusatz, drawType) {
+  if (drawType === 'plus1' || drawType === 'plus2') {
+    // Lotto Plus / Lotto Plus 2 haben keine Zusatzzahl
+    const suffix = drawType === 'plus2' ? ' Plus 2' : ' Plus';
+    if (count === 6) return '6er'+suffix;
+    if (count === 5) return '5er'+suffix;
+    if (count === 4) return '4er'+suffix;
+    if (count === 3) return '3er'+suffix;
     return null;
   }
   if (count === 6) return '6er';
@@ -200,21 +223,20 @@ let state = {
   // Gespeicherte Tipps
   savedTipps: stored.savedTipps || [],
   // Auswertung
-  ziehung6: [],          // max 6 Zahlen
-  ziehungZ: null,        // Zusatzzahl
-  lottoPlus6: [],
-  lottoPlusZ: null,
+  ziehung6: stored.ziehung6 || [],     // max 6 Zahlen
+  ziehungZ: stored.ziehungZ ?? null,   // Zusatzzahl
+  plus1_6: stored.plus1_6 || [],       // Lotto Plus
+  plus2_6: stored.plus2_6 || [],       // Lotto Plus 2
   joker: stored.joker || '',
-  jokerResult: null,
-  auswertungDone: false,
+  jokerResult: stored.jokerResult ?? null,
+  auswertungDone: stored.auswertungDone || false,
   // Auswertungs-Eingabe Modus
   auswertInput: 'lotto', // lotto | plus
 };
 
 function setState(patch) {
   Object.assign(state, patch);
-  if (patch.savedTipps !== undefined) saveToStorage('lottoState', {savedTipps: state.savedTipps, joker: state.joker});
-  if (patch.joker !== undefined) saveToStorage('lottoState', {savedTipps: state.savedTipps, joker: state.joker});
+  persist();
   render();
 }
 
@@ -342,7 +364,11 @@ function renderAuswerten(app) {
 
   // Manuelle Eingabe - Lotto Plus
   app.appendChild(el('div','section-label',['Lotto Plus']));
-  app.appendChild(mkZiehungGrid('plus'));
+  app.appendChild(mkZiehungGrid('plus1'));
+
+  // Manuelle Eingabe - Lotto Plus 2
+  app.appendChild(el('div','section-label',['Lotto Plus 2']));
+  app.appendChild(mkZiehungGrid('plus2'));
 
   // Joker
   app.appendChild(el('div','section-label',['Joker (7-stellig)']));
@@ -350,7 +376,7 @@ function renderAuswerten(app) {
   ji.type='tel'; ji.maxLength=7; ji.className='joker-input';
   ji.placeholder='0000000'; ji.value=state.joker;
   // Update state quietly without re-rendering on every keystroke (keeps focus)
-  ji.oninput=e=>{ state.joker = e.target.value.replace(/\D/g,'').slice(0,7); e.target.value = state.joker; saveToStorage('lottoState', {savedTipps: state.savedTipps, joker: state.joker}); };
+  ji.oninput=e=>{ state.joker = e.target.value.replace(/\D/g,'').slice(0,7); e.target.value = state.joker; persist(); };
   app.appendChild(ji);
 
   // Auswerten Button
@@ -366,16 +392,17 @@ function renderAuswerten(app) {
 }
 
 function mkZiehungGrid(mode) {
-  const selected6 = mode==='lotto' ? state.ziehung6 : state.lottoPlus6;
-  const selectedZ = mode==='lotto' ? state.ziehungZ : state.lottoPlusZ;
-  const hatZusatz = mode==='lotto'; // Lotto Plus hat keine Zusatzzahl
+  const selected6 = mode==='lotto' ? state.ziehung6 : mode==='plus1' ? state.plus1_6 : state.plus2_6;
+  const selectedZ = mode==='lotto' ? state.ziehungZ : null; // Lotto Plus / Plus 2 haben keine Zusatzzahl
+  const hatZusatz = mode==='lotto';
+  const selClass = mode==='lotto' ? 'sel6' : mode==='plus1' ? 'selP' : 'selP2';
   const max = 6;
   const btns = Array.from({length:45},(_,i)=>{
     const n=i+1;
     const is6=selected6.includes(n);
     const isZ=selectedZ===n;
     let cls='ziehung-btn';
-    if (is6) cls+=' sel6';
+    if (is6) cls+=' '+selClass;
     else if (isZ) cls+=' selZ';
     const b=el('button',cls,[String(n)]);
     b.onclick=()=>{
@@ -385,7 +412,8 @@ function mkZiehungGrid(mode) {
       else if (s6.length<max) { s6=[...s6,n].sort((a,b)=>a-b); }
       else if (hatZusatz && !sZ) { sZ=n; }
       if (mode==='lotto') setState({ziehung6:s6,ziehungZ:sZ,auswertungDone:false});
-      else setState({lottoPlus6:s6,lottoPlusZ:null,auswertungDone:false});
+      else if (mode==='plus1') setState({plus1_6:s6,auswertungDone:false});
+      else setState({plus2_6:s6,auswertungDone:false});
     };
     return b;
   });
@@ -421,25 +449,26 @@ function renderAuswertungErgebnis(app) {
 
     eintrag.tipps.forEach((tipp,ti) => {
       const res = checkTipp(tipp, state.ziehung6, state.ziehungZ);
-      const resP = state.lottoPlus6.length===6 ? checkTipp(tipp, state.lottoPlus6, state.lottoPlusZ) : null;
-      const gk = res ? getGewinnKlasse(res.count, res.hasZusatz, false) : null;
-      const gkP = resP ? getGewinnKlasse(resP.count, resP.hasZusatz, true) : null;
-      const isWin = !!(gk || gkP);
+      const resP1 = state.plus1_6.length===6 ? checkTipp(tipp, state.plus1_6, null) : null;
+      const resP2 = state.plus2_6.length===6 ? checkTipp(tipp, state.plus2_6, null) : null;
+      const gk = res ? getGewinnKlasse(res.count, res.hasZusatz, 'lotto') : null;
+      const gkP1 = resP1 ? getGewinnKlasse(resP1.count, false, 'plus1') : null;
+      const gkP2 = resP2 ? getGewinnKlasse(resP2.count, false, 'plus2') : null;
+      const isWin = !!(gk || gkP1 || gkP2);
       if (isWin) hatGewinn=true;
 
       const zahlenBubbles = tipp.map(z => {
         const isHit = state.ziehung6.includes(z);
         const isZ = state.ziehungZ===z;
-        const isPlusHit = resP && state.lottoPlus6.includes(z);
-        const isPlusZ = resP && state.lottoPlusZ===z;
+        const isP1 = !!(resP1 && state.plus1_6.includes(z));
+        const isP2 = !!(resP2 && state.plus2_6.includes(z));
         let cls='az ';
         if (isZ&&!isHit) cls+='z';
         else if (isHit) cls+='h';
-        else if (isPlusZ&&!isPlusHit) cls+='z';
-        else if (isPlusHit) cls+='h';
+        else if (isP1) cls+='p1';
+        else if (isP2) cls+='p2';
         else cls+='n';
-        if ((isPlusHit||isPlusZ) && !(isHit||isZ)) cls+=' plusring';
-        else if ((isHit||isZ) && (isPlusHit||isPlusZ)) cls+=' plusring';
+        if ((isHit||isZ) && (isP1||isP2)) cls+=' plusring';
         const b = el('div',cls,[String(z)]);
         return b;
       });
@@ -450,7 +479,8 @@ function renderAuswertungErgebnis(app) {
 
       const badges = el('div','auswertung-badges',[]);
       if (gk) badges.appendChild(el('span','gewinn-badge g'+(res.count),[gk]));
-      if (gkP) badges.appendChild(el('span','gewinn-badge g'+(resP.count),[gkP]));
+      if (gkP1) badges.appendChild(el('span','gewinn-badge g'+(resP1.count),[gkP1]));
+      if (gkP2) badges.appendChild(el('span','gewinn-badge g'+(resP2.count),[gkP2]));
 
       const tippWrap = el('div','auswertung-tipp'+(isWin?' win':''),[row]);
       if (badges.children.length>0) tippWrap.appendChild(badges);
