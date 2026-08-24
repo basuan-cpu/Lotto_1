@@ -1,4 +1,4 @@
-const CACHE = 'lotto-v1';
+const CACHE = 'lotto-v2'; // bei zukünftigen Änderungen an icons/manifest hochzählen
 const FILES = [
   './',
   './index.html',
@@ -20,7 +20,25 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
-  );
+  const req = e.request;
+  const isHtml = req.mode === 'navigate' || req.url.endsWith('index.html') || req.url.endsWith('/');
+
+  if (isHtml) {
+    // Network-first: immer versuchen, die aktuelle Version zu holen.
+    // Nur wenn offline/kein Netz, auf den Cache zurückfallen.
+    e.respondWith(
+      fetch(req)
+        .then(res => {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(req, copy));
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
+  } else {
+    // Statische Assets (Icons, Manifest): cache-first wie bisher, spart Traffic.
+    e.respondWith(
+      caches.match(req).then(r => r || fetch(req))
+    );
+  }
 });
