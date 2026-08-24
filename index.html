@@ -117,6 +117,7 @@
     .pflicht-tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
     .pflicht-tag{background:rgba(232,201,106,0.1);border:1px solid rgba(232,201,106,0.3);border-radius:8px;padding:4px 10px;font-size:13px;color:var(--gold);}
     .results-count{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;text-align:center;margin-bottom:12px;}
+    .auto-saved-hint{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:#4a9d5f;text-align:center;margin-bottom:14px;}
     .section-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:14px 0 8px;font-weight:600;}
     .joker-result{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-top:8px;font-size:13px;color:var(--muted);}
     .joker-result span{color:var(--gold);font-weight:600;}
@@ -347,8 +348,7 @@ function renderResults(app) {
     app.appendChild(card);
   });
 
-  const saveBtn = btn('💾  TIPPS SPEICHERN','gen-btn', speichern);
-  app.appendChild(saveBtn);
+  app.appendChild(el('div','auto-saved-hint',['✅ Automatisch gespeichert']));
 
   const r = btn('🔄  NOCHMAL WÜRFELN','sec-btn', generieren);
   app.appendChild(r);
@@ -553,7 +553,9 @@ function generieren(){
     const pf={};
     for(const z of state.selected)pf[z]=state.haeufig[z]??1;
     const tipps=generiereTipps(state.anzahl,pf);
-    setState({tipps,phase:'results',error:''});
+    const datum=new Date().toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const eintrag={datum,tipps};
+    setState({tipps,phase:'results',error:'',savedTipps:[...state.savedTipps,eintrag]});
   }catch(e){setState({error:e.message});}
 }
 function speichern(){
