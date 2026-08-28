@@ -183,8 +183,14 @@ function generiereTipps(anzahl, pflichtzahlen) {
   return tipps.map(t => [...t].sort((a,b)=>a-b));
 }
 
-function checkTipp(tipp, ziehung, zusatz) {
+// Ein Tipp ist entweder ein reines Zahlen-Array (generiert) oder ein Objekt
+// {zahlen:[...], label:'Moni', quelle:'manual'} für manuell hinzugefügte Tipps.
+function getZahlen(tipp) { return Array.isArray(tipp) ? tipp : tipp.zahlen; }
+function getLabel(tipp) { return Array.isArray(tipp) ? null : (tipp.label || null); }
+
+function checkTipp(tippOrZahlen, ziehung, zusatz) {
   if (!ziehung) return null;
+  const tipp = getZahlen(tippOrZahlen);
   const hits = tipp.filter(z => ziehung.includes(z));
   const hasZusatz = zusatz && tipp.includes(zusatz);
   return {hits, hasZusatz, count: hits.length};
@@ -233,6 +239,9 @@ let state = {
   auswertungDone: stored.auswertungDone || false,
   // Auswertungs-Eingabe Modus
   auswertInput: 'lotto', // lotto | plus
+  // Manueller Tipp (z.B. für Mitspieler wie Moni) - nicht persistiert
+  manualSelected: new Set(),
+  manualName: '',
 };
 
 function setState(patch) {
@@ -447,17 +456,19 @@ function renderAuswertungErgebnis(app) {
     const meta = el('div','auswertung-title',[`${eintrag.datum} — ${eintrag.tipps.length} Tipp${eintrag.tipps.length!==1?'s':''}`]);
     d.appendChild(meta);
 
-    eintrag.tipps.forEach((tipp,ti) => {
-      const res = checkTipp(tipp, state.ziehung6, state.ziehungZ);
-      const resP1 = state.plus1_6.length===6 ? checkTipp(tipp, state.plus1_6, null) : null;
-      const resP2 = state.plus2_6.length===6 ? checkTipp(tipp, state.plus2_6, null) : null;
+    eintrag.tipps.forEach((tippRaw,ti) => {
+      const label = getLabel(tippRaw);
+      const zahlenArr = getZahlen(tippRaw);
+      const res = checkTipp(zahlenArr, state.ziehung6, state.ziehungZ);
+      const resP1 = state.plus1_6.length===6 ? checkTipp(zahlenArr, state.plus1_6, null) : null;
+      const resP2 = state.plus2_6.length===6 ? checkTipp(zahlenArr, state.plus2_6, null) : null;
       const gk = res ? getGewinnKlasse(res.count, res.hasZusatz, 'lotto') : null;
       const gkP1 = resP1 ? getGewinnKlasse(resP1.count, false, 'plus1') : null;
       const gkP2 = resP2 ? getGewinnKlasse(resP2.count, false, 'plus2') : null;
       const isWin = !!(gk || gkP1 || gkP2);
       if (isWin) hatGewinn=true;
 
-      const zahlenBubbles = tipp.map(z => {
+      const zahlenBubbles = zahlenArr.map(z => {
         const isHit = state.ziehung6.includes(z);
         const isZ = state.ziehungZ===z;
         const isP1 = !!(resP1 && state.plus1_6.includes(z));
@@ -472,6 +483,8 @@ function renderAuswertungErgebnis(app) {
         const b = el('div',cls,[String(z)]);
         return b;
       });
+
+      if (label) d.appendChild(el('div','tipp-nr',[label]));
 
       const row = el('div','auswertung-row',[
         el('div','auswertung-zahlen',zahlenBubbles)
@@ -504,7 +517,35 @@ function renderAuswertungErgebnis(app) {
 }
 
 // ── TAB: Gespeichert ─────────────────────────────────────────────────────────
+function mkManualEntryCard() {
+  const numBtns = Array.from({length:45},(_,i)=>{
+    const n=i+1;
+    const b=el('button','num-btn'+(state.manualSelected.has(n)?' selected':''),[String(n)]);
+    b.onclick=()=>toggleManualNum(n);
+    return b;
+  });
+  const nameInput = document.createElement('input');
+  nameInput.type='text'; nameInput.maxLength=20; nameInput.className='joker-input';
+  nameInput.style.fontFamily="'DM Sans',sans-serif"; nameInput.style.fontSize='15px';
+  nameInput.style.letterSpacing='normal'; nameInput.style.textAlign='left';
+  nameInput.placeholder='Name (optional, z.B. Moni)'; nameInput.value=state.manualName;
+  nameInput.oninput=e=>{ state.manualName=e.target.value; persist(); };
+
+  const addBtn = btn('➕  TIPP HINZUFÜGEN','gen-btn', manuellHinzufuegen);
+  addBtn.disabled = state.manualSelected.size !== 6;
+
+  return el('div','card',[
+    el('div','card-title',['Manuellen Tipp hinzufügen']),
+    el('p','hint',[`Für fremde Tipps, z.B. von Mitspielern. Genau 6 Zahlen wählen. Ausgewählt: ${state.manualSelected.size}/6`]),
+    nameInput,
+    el('div','num-grid',numBtns),
+    addBtn
+  ]);
+}
+
 function renderGespeichert(app) {
+  app.appendChild(mkManualEntryCard());
+
   if (state.savedTipps.length === 0) {
     app.appendChild(el('div','info',['Noch keine gespeicherten Tipps. Generiere Tipps und tippe auf "Tipps speichern"!']));
     return;
@@ -528,8 +569,10 @@ function renderGespeichert(app) {
     header.appendChild(delBtn);
 
     const tippRows = eintrag.tipps.map((tipp,ti) => {
-      const zahlen = tipp.map(z => el('div','saved-zahl',[String(z)]));
-      return el('div','',[ el('div','saved-meta',[`Tipp ${ti+1}`]), el('div','saved-zahlen',zahlen) ]);
+      const label = getLabel(tipp);
+      const zahlen = getZahlen(tipp).map(z => el('div','saved-zahl',[String(z)]));
+      const titel = label ? `Tipp ${ti+1} — ${label}` : `Tipp ${ti+1}`;
+      return el('div','',[ el('div','saved-meta',[titel]), el('div','saved-zahlen',zahlen) ]);
     });
 
     app.appendChild(el('div','saved-item',[header, ...tippRows]));
@@ -542,6 +585,21 @@ function toggleNum(n) {
   if(sel.has(n)){sel.delete(n);delete hae[n];}
   else{if(sel.size>=10)return;sel.add(n);hae[n]=1;}
   setState({selected:sel,haeufig:hae});
+}
+function toggleManualNum(n) {
+  const sel=new Set(state.manualSelected);
+  if(sel.has(n)){sel.delete(n);}
+  else{if(sel.size>=6)return;sel.add(n);}
+  setState({manualSelected:sel});
+}
+function manuellHinzufuegen(){
+  if(state.manualSelected.size!==6)return;
+  const zahlen=[...state.manualSelected].sort((a,b)=>a-b);
+  const label=state.manualName.trim();
+  const tipp={zahlen,label:label||null,quelle:'manual'};
+  const datum=new Date().toLocaleDateString('de-AT',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const eintrag={datum,tipps:[tipp]};
+  setState({savedTipps:[...state.savedTipps,eintrag],manualSelected:new Set(),manualName:''});
 }
 function setHaeuf(zahl,delta){
   const hae={...state.haeufig};
