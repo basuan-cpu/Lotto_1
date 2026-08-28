@@ -643,8 +643,21 @@ function btn(label,cls,onClick){
   return b;
 }
 
-if('serviceWorker'in navigator)
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+if('serviceWorker'in navigator) {
+  window.addEventListener('load',()=>{
+    // updateViaCache:'none' verhindert, dass der Browser sw.js selbst aus
+    // seinem HTTP-Cache serviert und Updates dadurch verzögert.
+    navigator.serviceWorker.register('./sw.js', {updateViaCache:'none'}).catch(()=>{});
+  });
+  // Sobald ein neuer Service Worker übernimmt, Seite einmalig neu laden,
+  // damit die neue Version sofort sichtbar ist statt erst beim nächsten Öffnen.
+  let refreshed = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshed) return;
+    refreshed = true;
+    window.location.reload();
+  });
+}
 
 render();
 </script>
