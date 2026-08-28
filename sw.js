@@ -1,4 +1,4 @@
-const CACHE = 'lotto-v2'; // bei zukünftigen Änderungen an icons/manifest hochzählen
+const CACHE = 'lotto-v3'; // bei zukünftigen Änderungen an icons/manifest hochzählen
 const FILES = [
   './',
   './index.html',
@@ -25,9 +25,11 @@ self.addEventListener('fetch', e => {
 
   if (isHtml) {
     // Network-first: immer versuchen, die aktuelle Version zu holen.
+    // cache:'no-store' erzwingt, dass der Browser NICHT aus seinem eigenen
+    // HTTP-Cache antwortet, sondern wirklich zum Server geht.
     // Nur wenn offline/kein Netz, auf den Cache zurückfallen.
     e.respondWith(
-      fetch(req)
+      fetch(req, {cache: 'no-store'})
         .then(res => {
           const copy = res.clone();
           caches.open(CACHE).then(c => c.put(req, copy));
