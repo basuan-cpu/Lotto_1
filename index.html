@@ -655,7 +655,7 @@ if('serviceWorker'in navigator) {
       document.addEventListener('visibilitychange', ()=>{
         if (document.visibilityState === 'visible') reg.update();
       });
-    }).catch(()=>{});
+    }).catch(err=>console.error('Service-Worker-Registrierung fehlgeschlagen:', err));
   });
   // Sobald ein neuer Service Worker übernimmt, Seite einmalig neu laden,
   // damit die neue Version sofort sichtbar ist statt erst beim nächsten Öffnen.
