@@ -1,4 +1,4 @@
-const CACHE = 'lotto-v3'; // bei zukünftigen Änderungen an icons/manifest hochzählen
+const CACHE = 'lotto-v4'; // bei zukünftigen Änderungen an icons/manifest hochzählen
 const FILES = [
   './',
   './index.html',
