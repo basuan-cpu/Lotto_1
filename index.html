@@ -647,7 +647,15 @@ if('serviceWorker'in navigator) {
   window.addEventListener('load',()=>{
     // updateViaCache:'none' verhindert, dass der Browser sw.js selbst aus
     // seinem HTTP-Cache serviert und Updates dadurch verzögert.
-    navigator.serviceWorker.register('./sw.js', {updateViaCache:'none'}).catch(()=>{});
+    navigator.serviceWorker.register('./sw.js', {updateViaCache:'none'}).then(reg=>{
+      // Browser prüfen ein installiertes sw.js von sich aus nur alle 24h auf
+      // Änderungen. reg.update() erzwingt sofort einen echten Check – ohne
+      // das hier würde eine neue sw.js oft erst am nächsten Tag bemerkt.
+      reg.update();
+      document.addEventListener('visibilitychange', ()=>{
+        if (document.visibilityState === 'visible') reg.update();
+      });
+    }).catch(()=>{});
   });
   // Sobald ein neuer Service Worker übernimmt, Seite einmalig neu laden,
   // damit die neue Version sofort sichtbar ist statt erst beim nächsten Öffnen.
